@@ -16,6 +16,7 @@
 		"Other"
 	],
 	"activationEvents": [
+		"onStartupFinished",
 		"onWebviewPanel:catCoding"
 	],
 	"main": "./out/extension.js",
@@ -30,8 +31,21 @@
 				"command": "catCoding.doRefactor",
 				"title": "Do some refactoring",
 				"category": "Cat Coding"
-			}
-		]
+			},
+			{
+                "command": "tritonlayoutviewer.findDeclaration",
+                "title": "Find #Declaration"
+            }
+		],
+		"menus": {
+				"editor/context": [
+				{
+					"command": "tritonlayoutviewer.findDeclaration",
+					"group": "navigation",
+					"when": "editorHasSelection"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
