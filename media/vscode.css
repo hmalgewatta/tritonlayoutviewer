@@ -91,7 +91,7 @@ textarea::placeholder {
 }
 
     /* Previous styles remain the same until wave-segments */
-    .container {
+    /* .container {
       position: relative;
       width: 800px;
       height: 800px;
@@ -106,12 +106,32 @@ textarea::placeholder {
       grid-template-columns: repeat(2, 1fr);
       grid-template-rows: repeat(4, 1fr);
       border: 1px solid black;
+    } */
+    .container {
+      position: relative;
+      width: 80%; /* Adjust width as a percentage of the viewport */
+      max-width: 800px; /* Ensure it doesn't grow too large */
+      height: auto; /* Let the height adjust based on content */
+      margin: 60px auto;
+      padding: 20px;
+      box-sizing: border-box; /* Include padding in the width/height calculations */
     }
-
+    
+    .wave-grid {
+      width: 100%; /* Take up the full width of the container */
+      height: 0;
+      padding-bottom: 100%; /* Maintain aspect ratio of 1:1 (square) */
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      border: 1px solid black;
+      box-sizing: border-box; /* Include border in the element's box model */
+    }
     .wave-block {
       border: 1px solid black;
       display: flex;
       flex-direction: column;
+      height: 400px;  /* Fixed height */
     }
 
     .wave-cell {
