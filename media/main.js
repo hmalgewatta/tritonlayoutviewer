@@ -69,7 +69,7 @@
         }
     });
 
-    function createWaveCell(level, document, warpsOnY) {
+    function createWaveCell(level, document, tritonConfig) {
       const cell = document.createElement('div');
       cell.className = 'wave-cell';
   
@@ -78,15 +78,18 @@
       label.className = 'wave-label';
       label.textContent = `wave${level}`;
       cell.appendChild(label);
+
+      const sizePerThread = tritonConfig.triton_gpu.blocked.sizePerThread;
+      const threadsPerWarp = tritonConfig.triton_gpu.blocked.threadsPerWarp;
   
       // Add segments and blue pattern for wave0
       if (level === 0) {
         const segments = document.createElement('div');
         segments.className = 'wave-segments';
         
-        for (let i = 0; i < warpsOnY; i++) {
+        for (let i = 0; i < threadsPerWarp[1]; i++) {
           const segment = document.createElement('div');
-          segment.className = `wave-segment ${i < 2 ? 'filled' : ''}`;
+          segment.className = `wave-segment ${i < 1 ? 'filled' : ''}`;
           segments.appendChild(segment);
         }
         
@@ -108,9 +111,19 @@
       const order = tritonConfig.triton_gpu.blocked.order;
       const warpsPerCTA = tritonConfig.triton_gpu.blocked.warpsPerCTA;
       const shapePerCTA = tritonConfig.triton_gpu.blocked.shapePerCTA;
-      
+      const table = document.createElement('table');
+      const tbody = document.createElement('tbody');
+      block.appendChild(table);
+      table.appendChild(tbody);
       for (let i = 0; i < warpsPerCTA[order[0]]; i++) {
-        block.appendChild(createWaveCell(i, document, warpsPerCTA[order[1]]));
+        let row = document.createElement('tr');
+        tbody.appendChild(row);
+        for (let j = 0; j < warpsPerCTA[order[1]]; j++) {
+          let tcol = document.createElement('td');
+          row.appendChild(tcol);
+          tcol.appendChild(createWaveCell(i, document, tritonConfig));
+          // block.appendChild(createWaveCell(i, document, tritonConfig));
+        }
       }
       
       return block;
@@ -126,7 +139,11 @@
       const order = tritonConfig.triton_gpu.blocked.order;
       const shapePerCTA = [sizePerThread[order[0]]*threadsPerWarp[order[0]], sizePerThread[order[1]]*threadsPerWarp[order[1]]];
       tritonConfig.triton_gpu.blocked.shapePerCTA = shapePerCTA;
-  
+      
+      let M = document.getElementById('M');
+      let K = document.getElementById('K');
+      M.textContent = `M= ${size[0]}`;
+      K.textContent = `K= ${size[1]}`;
       console.log('initializeGrid called', grid);
       // Create 4 rows of 2 blocks each
       for (let i = 0; i < Math.ceil(size[order[0]]/(shapePerCTA[0]*warpsPerCTA[order[0]])) && grid; i++) {
