@@ -94,7 +94,7 @@
         const segments = document.createElement('div');
         segments.className = 'wave-segments';
         
-        for (let i = 0; i < threadsPerWarp[1]; i++) {
+        for (let i = 0; i < warpsOnY; i++) {
           const segment = document.createElement('div');
           // segment.className = `wave-segment ${i < 2 ? 'filled' : ''}`;
           segment.className = `wave-segment filled`;
