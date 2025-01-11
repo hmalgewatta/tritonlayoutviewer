@@ -185,8 +185,8 @@ function getWebviewContent(cssUri: string, scriptUri: string, nonce: string) {
   </head>
   <body>
       <div class="container">
-          <div class="k-label" id="K">K=128</div>
-          <div class="m-label" id="M">M=128</div>
+          <div class="k-label" id="kLabel">K=128</div>
+          <div class="m-label" id="mLabel">M=128</div>
           <div class="t0-container">
               <span>t₀</span>
               <div class="t0-grid">
