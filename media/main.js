@@ -140,6 +140,10 @@
       const threadsPerWarp = tritonConfig.triton_gpu.blocked.threadsPerWarp ;
       const warpsPerCTA = tritonConfig.triton_gpu.blocked.warpsPerCTA;
       const order = tritonConfig.triton_gpu.blocked.order;
+      grid.style.setProperty('--size-height', `${size[0]}`);
+      grid.style.setProperty('--size-width', `${size[1]}`);
+      // const container = document.querySelector('container');
+      // const width = container.getBoundingClientRect().width;
       const shapePerCTA = [sizePerThread[1-order[0]]*threadsPerWarp[1-order[0]], sizePerThread[1-order[1]]*threadsPerWarp[1-order[1]]];
       tritonConfig.triton_gpu.blocked.shapePerCTA = shapePerCTA;
       const gridColumns = Math.ceil(size[1-order[1]]/(shapePerCTA[1]*warpsPerCTA[1-order[1]]));
@@ -153,6 +157,7 @@
           grid.appendChild(createWaveBlock(document, tritonConfig));
         }
       }
+      // document.documentElement.style.setProperty('--wave-block-height-px', `${width}/${size[1-order[1]]}*${size[1-order[0]]}`);
       vscode.setState({ tritonConfig });
     }
 }());
