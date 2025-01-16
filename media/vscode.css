@@ -42,7 +42,7 @@ body {
   width: 100%;
   /* Take up the full width of the container */
   /* height: calc((var(--size-height)/var(--size-width)) * 100%); /* Adjust height based on the aspect ratio */
-  aspect-ratio: var(--size-height) / var(--size-width); 
+  aspect-ratio:  calc(var(--size-width)/var(--size-height)); 
   display: grid;
   grid-template-columns: repeat(var(--wave-grid-template-columns-repeat), 1fr);
   grid-template-rows: repeat(var(--wave-grid-template-rows-repeat), 1fr);
@@ -56,7 +56,7 @@ body {
   display: flex;
   flex-direction: column;
   /* min-height: 0; */
-  height: var(--wave-block-height-px);
+  /* height: var(--wave-block-height-px); */
 }
 
 .wave-cell {
