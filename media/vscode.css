@@ -28,8 +28,9 @@ body {
   width: 80%;
   /* Adjust width as a percentage of the viewport */
   max-width: 800px;
+  height: calc(var(--size-height) / var(--size-width) * 100%);
   /* Ensure it doesn't grow too large */
-  height: auto;
+  /* height: auto; */
   /* Let the height adjust based on content */
   margin: 60px auto;
   padding: 20px;
@@ -41,7 +42,7 @@ body {
   width: 100%;
   /* Take up the full width of the container */
   /* height: calc((var(--size-height)/var(--size-width)) * 100%); /* Adjust height based on the aspect ratio */
-  /* aspect-ratio: var(--size-width) / var(--size-height);  */
+  aspect-ratio: var(--size-height) / var(--size-width); 
   display: grid;
   grid-template-columns: repeat(var(--wave-grid-template-columns-repeat), 1fr);
   grid-template-rows: repeat(var(--wave-grid-template-rows-repeat), 1fr);
