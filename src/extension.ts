@@ -1,11 +1,5 @@
 import * as vscode from "vscode";
 
-const cats = {
-  "Triton Layout Viewer":
-    "https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif",
-  "Compiling Cat": "https://media.giphy.com/media/mlvseq9yvZhba/giphy.gif",
-  "Testing Cat": "https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif",
-};
 interface TritonConfig {
   triton_gpu: {
     blocked: {
@@ -154,7 +148,6 @@ export function activate(context: vscode.ExtensionContext) {
         foundDeclaration,
         editor.document.lineAt(declarationLine).text
       );
-      // CatCodingPanel.createOrShow(context.extensionUri, parsedConfig);
       const column = vscode.window.activeTextEditor
         ? vscode.window.activeTextEditor.viewColumn
         : undefined;
@@ -200,7 +193,7 @@ export function activate(context: vscode.ExtensionContext) {
     return {
       // Enable javascript in the webview
       enableScripts: true,
-      retainContextWhenHidden: true
+      retainContextWhenHidden: true,
 
       // And restrict the webview to only loading content from our extension's `media` directory.
       // localResourceRoots: [vscode.Uri.joinPath(extensionUri, "media")],
