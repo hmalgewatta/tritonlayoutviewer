@@ -1,28 +1,3 @@
-// This script will be run within the webview itself
-// It cannot access the main VS Code APIs directly.
-
-// Previous JavaScript remains exactly the same
-
-
-  // Initialize the visualization
-//   document.addEventListener('DOMContentLoaded', initializeGrid);
-// document.addEventListener('message', event => {
-//   const message = event.data; // The json data that the extension sent
-//   console.log("message", message);
-//   switch (message.command) {
-//       case 'refactor':
-//           currentCount = Math.ceil(currentCount * 0.5);
-//           counter.textContent = `${currentCount}`;
-//           break;
-//       case 'initialize':
-//         // Update config with received data
-//         // Initialize the grid with new configuration
-//         console.log("Message received", message.data);
-//         initializeGrid(document, message.data);
-//         break;
-//   }
-// });
-
 (function () {
     // @ts-ignore
     const vscode = acquireVsCodeApi();
@@ -30,6 +5,7 @@
     const oldState = /** @type {{ count: number} | undefined} */ (vscode.getState());
 
     console.log('Initial state', oldState);
+    // @ts-ignore
     // @ts-ignore
     let grid = /** @type {HTMLElement} */ (document.getElementById('waveGrid'));
 
@@ -53,9 +29,11 @@
       cell.className = 'wave-cell';
       
       // @ts-ignore
+      // @ts-ignore
       const size = tritonConfig.triton_gpu.blocked.size;
       const order = tritonConfig.triton_gpu.blocked.order;
       const threadsPerWarp = tritonConfig.triton_gpu.blocked.threadsPerWarp;
+      // @ts-ignore
       const warpsPerCTA = tritonConfig.triton_gpu.blocked.warpsPerCTA;
       // @ts-ignore
       const shapePerCTA = tritonConfig.triton_gpu.blocked.shapePerCTA;
@@ -96,6 +74,7 @@
       const block = document.createElement('div');
       block.className = 'wave-block';
       // @ts-ignore
+      // @ts-ignore
       const size = tritonConfig.triton_gpu.blocked.size;
       const order = tritonConfig.triton_gpu.blocked.order;
       const warpsPerCTA = tritonConfig.triton_gpu.blocked.warpsPerCTA;
@@ -116,28 +95,53 @@
       const grid = document.getElementById('waveGrid');
       const M = document.getElementById('mLabel');
       const K = document.getElementById('kLabel');
-      console.log('initializeGrid called', tritonConfig);
-      const size = tritonConfig.triton_gpu.blocked.size;
-      const sizePerThread = tritonConfig.triton_gpu.blocked.sizePerThread;
-      const threadsPerWarp = tritonConfig.triton_gpu.blocked.threadsPerWarp ;
-      const warpsPerCTA = tritonConfig.triton_gpu.blocked.warpsPerCTA;
-      const order = tritonConfig.triton_gpu.blocked.order;
-      const shapePerCTA = [sizePerThread[1-order[0]]*threadsPerWarp[1-order[0]], sizePerThread[1-order[1]]*threadsPerWarp[1-order[1]]];
+
+      const { size, sizePerThread, threadsPerWarp, warpsPerCTA, order } = tritonConfig.triton_gpu.blocked;
+      const shapePerCTA = calculateShapePerCTA(sizePerThread, threadsPerWarp, order);
       tritonConfig.triton_gpu.blocked.shapePerCTA = shapePerCTA;
-      const gridColumns = Math.ceil(size[1-order[1]]/(shapePerCTA[1]*warpsPerCTA[1-order[1]]));
-      grid.style.setProperty('--size-height', `${size[1-order[0]]}`);
-      grid.style.setProperty('--size-width', `${size[1-order[1]]}`);
+
+      const gridColumns = calculateGridColumns(size, shapePerCTA, warpsPerCTA, order);
+      setGridProperties(grid, size, shapePerCTA, order, gridColumns);
+
+      updateLabels(M, K, size, order);
+      populateGrid(grid, document, tritonConfig, size, shapePerCTA, warpsPerCTA, order, gridColumns);
+
+      vscode.setState({ tritonConfig });
+    }
+
+    // @ts-ignore
+    function calculateShapePerCTA(sizePerThread, threadsPerWarp, order) {
+      return [
+        sizePerThread[1 - order[0]] * threadsPerWarp[1 - order[0]],
+        sizePerThread[1 - order[1]] * threadsPerWarp[1 - order[1]]
+      ];
+    }
+
+    // @ts-ignore
+    function calculateGridColumns(size, shapePerCTA, warpsPerCTA, order) {
+      return Math.ceil(size[1 - order[1]] / (shapePerCTA[1] * warpsPerCTA[1 - order[1]]));
+    }
+
+    // @ts-ignore
+    function setGridProperties(grid, size, shapePerCTA, order, gridColumns) {
+      grid.style.setProperty('--size-height', `${size[1 - order[0]]}`);
+      grid.style.setProperty('--size-width', `${size[1 - order[1]]}`);
       document.documentElement.style.setProperty('--wave-grid-template-columns-repeat', gridColumns);
-      console.log('initializeGrid called', grid);
-      M.textContent = `M = ${size[1-order[0]]}`;
-      K.textContent = `K = ${size[1-order[1]]}`;
-      console.log('rows of grid', Math.ceil(size[1-order[0]]/(shapePerCTA[0]*warpsPerCTA[1-order[0]])));
-      console.log(size[1-order[0]], shapePerCTA[0], warpsPerCTA[1-order[0]]);
-      for (let i = 0; i < Math.ceil(size[1-order[0]]/(shapePerCTA[0]*warpsPerCTA[1-order[0]])) && grid; i++) {
+    }
+
+    // @ts-ignore
+    function updateLabels(M, K, size, order) {
+      M.textContent = `M = ${size[1 - order[0]]}`;
+      K.textContent = `K = ${size[1 - order[1]]}`;
+    }
+
+    // @ts-ignore
+    function populateGrid(grid, document, tritonConfig, size, shapePerCTA, warpsPerCTA, order, gridColumns) {
+      const rows = Math.ceil(size[1 - order[0]] / (shapePerCTA[0] * warpsPerCTA[1 - order[0]]));
+      for (let i = 0; i < rows && grid; i++) {
         for (let j = 0; j < gridColumns; j++) {
           grid.appendChild(createWaveBlock(document, tritonConfig));
         }
       }
-      vscode.setState({ tritonConfig });
     }
 }());
