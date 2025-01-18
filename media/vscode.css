@@ -12,6 +12,8 @@
   --segment-grid-rows: 8;
   --size-height: 128;
   --size-width: 128;
+  --t0-grid-template-columns-repeat: 8;
+  --t0-grid-template-rows-repeat: 1;
 }
 
 body {
@@ -26,16 +28,11 @@ body {
 .container {
   position: relative;
   width: 80%;
-  /* Adjust width as a percentage of the viewport */
   max-width: 800px;
   height: calc(var(--size-height) / var(--size-width) * 100%);
-  /* Ensure it doesn't grow too large */
-  /* height: auto; */
-  /* Let the height adjust based on content */
   margin: 60px auto;
   padding: 20px;
   box-sizing: border-box;
-  /* Include padding in the width/height calculations */
 }
 
 .wave-grid {
@@ -100,12 +97,13 @@ body {
 
 /* New inner grid styling for filled segments */
 .wave-segment.filled::before {
-  content: "";
+  content: "t₀";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+  font-size: 1vh;
   background: linear-gradient(red, red) 0 0 / calc(100% / var(--segment-grid-columns)) calc(100% / var(--segment-grid-rows)),
     /* Vertical grid lines */
     linear-gradient(to right, #666 1px, transparent 1px) 0 0 / calc(100% / var(--segment-grid-columns)) 100%,
@@ -153,16 +151,30 @@ body {
 
 .t0-grid {
   width: 80px;
-  height: 20px;
+  aspect-ratio: calc(var(--t0-grid-template-columns-repeat) / var(--t0-grid-template-rows-repeat));
   border: 1px solid var(--vscode-editor-foreground);
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(var(--t0-grid-template-columns-repeat), 1fr);
+  grid-template-rows: repeat(var(--t0-grid-template-rows-repeat), 1fr);
+  background-color: red;
 }
+
+/* .t0-grid > div:last-child {
+  border-right: none;
+  border-bottom: none;
+} */
 
 .t0-segment {
   border-right: 1px solid var(--vscode-editor-foreground);
+  border-bottom: 1px solid var(--vscode-editor-foreground);
+}
+
+.t0-segment-last-row {
+  border-right: 1px solid var(--vscode-editor-foreground);
+  border-bottom: none;
 }
 
 .t0-segment:last-child {
+  border-bottom: 1px solid var(--vscode-editor-foreground);
   border-right: none;
 }

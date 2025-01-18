@@ -58,8 +58,11 @@
         console.log('cols', cols, 'rows', rows);
         for (let i = 0; i < threadsHeight; i++) {
           const segment = document.createElement('div');
-          segment.className = `wave-segment ${i < 1 ? 'filled' : ''}`;
-          // segment.className = `wave-segment filled`;
+          if (i == 0) {
+            segment.className = `wave-segment filled`;
+          } else {
+            segment.className = `wave-segment`;
+          }
           segments.appendChild(segment);
         }
         
@@ -89,12 +92,34 @@
       
       return block;
     }
+
+    // @ts-ignore
+    function visualizeSizePerThreadSegment(document, tritonConfig) {
+      const sizePerThread = tritonConfig.triton_gpu.blocked.sizePerThread;
+      const order = tritonConfig.triton_gpu.blocked.order;
+      const t0Grid = document.getElementById('t0Grid');
+      const sizePerThreadDiv = document.getElementById('sizePerThread');
+      sizePerThreadDiv.textContent = `${sizePerThread[1-order[0]]}x${sizePerThread[1-order[1]]}`;
+      t0Grid.style.setProperty('--t0-grid-template-columns-repeat', `${sizePerThread[1-order[1]]}`);
+      t0Grid.style.setProperty('--t0-grid-template-rows-repeat', `${sizePerThread[1-order[0]]}`);
+      for (let i = 0; i < sizePerThread[1-order[1]]*sizePerThread[1-order[0]]; i++) {
+        const segment = document.createElement('div');
+        if (Math.floor(i/(sizePerThread[1-order[1]])) == sizePerThread[1-order[0]]-1) {
+          segment.className = 't0-segment-last-row';
+        } else {
+          segment.className = 't0-segment';
+        }
+        t0Grid.appendChild(segment);
+      }
+    }
   
     // @ts-ignore
     function initializeGrid(document, tritonConfig) {
       const grid = document.getElementById('waveGrid');
       const M = document.getElementById('mLabel');
       const K = document.getElementById('kLabel');
+
+      visualizeSizePerThreadSegment(document, tritonConfig);
 
       const { size, sizePerThread, threadsPerWarp, warpsPerCTA, order } = tritonConfig.triton_gpu.blocked;
       const shapePerCTA = calculateShapePerCTA(sizePerThread, threadsPerWarp, order);

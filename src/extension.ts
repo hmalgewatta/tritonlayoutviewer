@@ -97,7 +97,7 @@ export function activate(context: vscode.ExtensionContext) {
       console.log("selectedText", `${selectedText}>>>`);
       // Pattern to match: # followed by the selected text
       const searchPattern = new RegExp(
-        `^#\\s*${selectedText.replace(
+        `^#?\\s*${selectedText.replace(
           /[.*+?^${}()|[\]\\]/g,
           "\\$&"
         )}\\s*=\\s*.+`,
@@ -133,7 +133,6 @@ export function activate(context: vscode.ExtensionContext) {
         declarationLine,
         editor.document.lineAt(declarationLine).text.length
       );
-      // const range = new vscode.Range(position, position.translate(0, selectedText.length + 1));
       const range = new vscode.Range(position, end);
 
       // Reveal the declaration
@@ -223,17 +222,9 @@ function getWebviewContent(cssUri: string, scriptUri: string, nonce: string) {
           <div class="m-label" id="mLabel">M=128</div>
           <div class="t0-container">
               <span>t₀</span>
-              <div class="t0-grid">
-                  <div class="t0-segment"></div>
-                  <div class="t0-segment"></div>
-                  <div class="t0-segment"></div>
-                  <div class="t0-segment"></div>
-                  <div class="t0-segment"></div>
-                  <div class="t0-segment"></div>
-                  <div class="t0-segment"></div>
-                  <div class="t0-segment"></div>
+              <div class="t0-grid" id="t0Grid">
               </div>
-              <span>1×8</span>
+              <span id="sizePerThread">1x8</span>
           </div>
           <div class="wave-grid" id="waveGrid"></div>
       </div>
