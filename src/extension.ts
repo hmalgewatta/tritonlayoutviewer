@@ -69,13 +69,11 @@ function revealDeclaration(editor: vscode.TextEditor, range: vscode.Range): void
 function parseAndLogConfig(foundDeclaration: string, tensorSize: string[]): any {
   const parsedConfig = parseTritonConfig(foundDeclaration);
   parsedConfig.triton_gpu.blocked.size = tensorSize.slice(0, 2).map(Number);
-  console.log("parsedConfig", parsedConfig);
   return parsedConfig;
 }
 
 function logFoundDeclaration(declarationLine: number, editor: vscode.TextEditor): void {
   const foundDeclaration = editor.document.lineAt(declarationLine).text;
-  console.log("found", foundDeclaration, editor.document.lineAt(declarationLine).text);
 }
 
 function getActiveEditorColumn(): vscode.ViewColumn | undefined {
@@ -110,7 +108,6 @@ export function activate(context: vscode.ExtensionContext) {
       const textToParse = editor.document
         .lineAt(lineToParse)
         .text.substring(0, selectionPosition.character);
-      console.log("textToParse", textToParse);
       const tensorPattern = new RegExp(
         `tensor<(?!.*tensor<)[0-9a-z!<>\.]*`,
         "i"
@@ -119,7 +116,6 @@ export function activate(context: vscode.ExtensionContext) {
       const tensorSize = tensorMatch
         ? tensorMatch[0].substring(7).split("x")
         : "";
-      console.log("tensorSize", tensorSize);
 
       if (!tensorSize || tensorSize.length != 3) {
         vscode.window.showInformationMessage("Invalid size found");
@@ -186,7 +182,6 @@ export function activate(context: vscode.ExtensionContext) {
       );
       const cssUri = panel.webview.asWebviewUri(cssPath);
       const scriptUri = panel.webview.asWebviewUri(scriptPath);
-      console.log("scriptUri", scriptUri.toString());
 
       // Set HTML content
       panel.webview.html = getWebviewContent(

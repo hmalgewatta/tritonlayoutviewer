@@ -4,20 +4,16 @@
 
     const oldState = /** @type {{ count: number} | undefined} */ (vscode.getState());
 
-    console.log('Initial state', oldState);
-    // @ts-ignore
     // @ts-ignore
     let grid = /** @type {HTMLElement} */ (document.getElementById('waveGrid'));
 
     // Handle messages sent from the extension to the webview
     window.addEventListener('message', event => {
         const message = event.data; // The json data that the extension sent
-        console.log("message", message);
         switch (message.command) {
             case 'initialize':
               // Update config with received data
               // Initialize the grid with new configuration
-              console.log("Message received", message.data);
               initializeGrid(document, message.data);
               break;
         }
@@ -55,7 +51,6 @@
         segments.className = 'wave-segments';
         let cols = shapePerCTA[1]/threadsHeight;
         let rows = shapePerCTA[0]/threadsWidth;
-        console.log('cols', cols, 'rows', rows);
         for (let i = 0; i < threadsHeight; i++) {
           const segment = document.createElement('div');
           if (i == 0) {
