@@ -51,6 +51,37 @@ function parseTritonConfig(input: string): TritonConfig {
   return result;
 }
 
+function handleNoDeclarationFound(selectedText: string): void {
+  vscode.window.showErrorMessage(`No declaration found for "${selectedText}"`);
+}
+
+function createSelectionAtDeclaration(editor: vscode.TextEditor, declarationLine: number, declarationCharacter: number): vscode.Range {
+  const position = new vscode.Position(declarationLine, declarationCharacter);
+  const end = new vscode.Position(declarationLine, editor.document.lineAt(declarationLine).text.length);
+  return new vscode.Range(position, end);
+}
+
+function revealDeclaration(editor: vscode.TextEditor, range: vscode.Range): void {
+  editor.selection = new vscode.Selection(range.start, range.end);
+  editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
+}
+
+function parseAndLogConfig(foundDeclaration: string, tensorSize: string[]): any {
+  const parsedConfig = parseTritonConfig(foundDeclaration);
+  parsedConfig.triton_gpu.blocked.size = tensorSize.slice(0, 2).map(Number);
+  console.log("parsedConfig", parsedConfig);
+  return parsedConfig;
+}
+
+function logFoundDeclaration(declarationLine: number, editor: vscode.TextEditor): void {
+  const foundDeclaration = editor.document.lineAt(declarationLine).text;
+  console.log("found", foundDeclaration, editor.document.lineAt(declarationLine).text);
+}
+
+function getActiveEditorColumn(): vscode.ViewColumn | undefined {
+  return vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined;
+}
+
 export function activate(context: vscode.ExtensionContext) {
   let disposable = vscode.commands.registerCommand(
     "tritonlayoutviewer.findDeclaration",
@@ -67,6 +98,10 @@ export function activate(context: vscode.ExtensionContext) {
 
       if (!selectedText) {
         vscode.window.showInformationMessage("Please select some text first");
+        return;
+      }
+      if (!selectedText.toLowerCase().includes("blocked")) {
+        vscode.window.showInformationMessage("Currently only supports blocked layouts");
         return;
       }
 
@@ -94,7 +129,7 @@ export function activate(context: vscode.ExtensionContext) {
       // Get all text from the beginning of the document to the current selection
       const fullText = editor.document.getText();
       const lines = fullText.split("\n");
-      console.log("selectedText", `${selectedText}>>>`);
+      
       // Pattern to match: # followed by the selected text
       const searchPattern = new RegExp(
         `^#?\\s*${selectedText.replace(
@@ -118,44 +153,24 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       if (declarationLine === -1) {
-        vscode.window.showInformationMessage(
-          `No declaration found for "${selectedText}"`
-        );
+        handleNoDeclarationFound(selectedText);
         return;
       }
 
-      // Create a selection at the found declaration
-      const position = new vscode.Position(
-        declarationLine,
-        declarationCharacter
-      );
-      const end = new vscode.Position(
-        declarationLine,
-        editor.document.lineAt(declarationLine).text.length
-      );
-      const range = new vscode.Range(position, end);
+      mainFunction(editor, selectedText, declarationLine, declarationCharacter, tensorSize);
 
-      // Reveal the declaration
-      editor.selection = new vscode.Selection(range.start, range.end);
-      const foundDeclaration = editor.document.lineAt(declarationLine).text;
-      const parsedConfig = parseTritonConfig(foundDeclaration);
-      parsedConfig.triton_gpu.blocked.size = tensorSize.slice(0, 2).map(Number);
-      console.log("parsedConfig", parsedConfig);
-      editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
-      console.log(
-        "found",
-        foundDeclaration,
-        editor.document.lineAt(declarationLine).text
-      );
-      const column = vscode.window.activeTextEditor
-        ? vscode.window.activeTextEditor.viewColumn
-        : undefined;
+      const column = getActiveEditorColumn();
+      const parsedConfig = parseAndLogConfig(editor.document.lineAt(declarationLine).text, tensorSize);
+
 
       const panel = vscode.window.createWebviewPanel(
         "waveVisualization",
         "Wave Visualization",
         column || vscode.ViewColumn.One,
-        getWebviewOptions(context.extensionUri)
+        {
+          enableScripts: true,
+          retainContextWhenHidden: true,
+        }
       );
       const nonce = getNonce();
 
@@ -187,17 +202,6 @@ export function activate(context: vscode.ExtensionContext) {
       });
     }
   );
-
-  function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewOptions {
-    return {
-      // Enable javascript in the webview
-      enableScripts: true,
-      retainContextWhenHidden: true,
-
-      // And restrict the webview to only loading content from our extension's `media` directory.
-      // localResourceRoots: [vscode.Uri.joinPath(extensionUri, "media")],
-    };
-  }
 }
 
 function getNonce() {
@@ -231,4 +235,16 @@ function getWebviewContent(cssUri: string, scriptUri: string, nonce: string) {
       <script src="${scriptUri}" nonce="${nonce}"></script>
   </body>
   </html>`;
+}
+
+// Main function
+function mainFunction(editor: vscode.TextEditor, selectedText: string, declarationLine: number, declarationCharacter: number, tensorSize: string[]): void {
+  if (!declarationLine) {
+    handleNoDeclarationFound(selectedText);
+    return;
+  }
+
+  const range = createSelectionAtDeclaration(editor, declarationLine, declarationCharacter);
+  revealDeclaration(editor, range);
+  logFoundDeclaration(declarationLine, editor);
 }

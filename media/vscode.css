@@ -56,7 +56,6 @@ body {
   display: grid;
   grid-template-columns: repeat(var(--wave-cell-template-columns-repeat), 1fr);
   box-sizing: border-box;
-  /* Include border in the element's box model */
   border-bottom: 1px solid var(--vscode-editor-foreground);
 }
 
