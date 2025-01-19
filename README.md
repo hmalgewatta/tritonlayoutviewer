@@ -7,7 +7,7 @@ Triton Layout Viewer lets you easily visualize how data is accessed by a triton 
 
 Here's how you use it:
 
-![Example Usage](media/Usage.gif)
+![Example Usage](https://github.com/hmalgewatta/tritonlayoutviewer/raw/main/media/Usage.gif)
 
 
 ## Features
