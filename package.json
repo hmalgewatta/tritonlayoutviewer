@@ -2,7 +2,7 @@
 	"name": "triton-layout-viewer",
 	"description": "Triton Layout Viewer - Extension for Visualizing Triton Layouts",
 	"version": "0.0.2",
-	"icon": "media/icon_medium.png",
+	"icon": "media/icon_medium.jpg",
 	"publisher": "hmalgewatta",
 	"private": true,
 	"license": "MIT",
